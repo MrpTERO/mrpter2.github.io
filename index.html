@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<table border="2">
+	<tr><td colspan="2"><h1>Датчик температуры и влажности Ардуино DHT11</h1></td></tr>
+	<tr><td><img width="200px" src="img/DHT11-Sensor.jpg"></td><td width="400px"><h3>Схема подключения к Ardunio</h3><img width="250px" src="img/CONNection_DHT11.jpg"></td></tr>
+	<tr><td colspan="2"><p>DHT11 — это цифровой датчик, состоящий из термистора и емкостного датчика влажности.</p></td></tr>
+	<tr><td colspan="2" width="600px"><h2>Код программы</h2><p>
+
+#include "DHT.h"<br>
+ 
+#define DHTPIN 2 // номер пина, к которому подсоединен датчик<br>
+ 
+DHT dht(DHTPIN, DHT11); <br>
+ 
+void setup() { <br>
+ 
+Serial.begin(9600); <br>
+ 
+dht.begin(); <br>
+ 
+} <br>
+ 
+void loop() { <br>
+ 
+// Задержка 2 секунды между измерениями <br>
+ 
+delay(1000); <br>
+ 
+//Считываем влажность <br>
+  
+float h = dht.readHumidity(); <br>
+ 
+// Считываем температуру <br>
+ 
+float t = dht.readTemperature(); <br>
+// Проверка удачно прошло ли считывание. <br>
+ 
+if (isnan(h) || isnan(t)) { <br>
+ 
+Serial.println("Не удается считать показания"); <br>
+ 
+} else { <br>
+Serial.print ("Humidity: "); <br>
+Serial.print (h); <br>
+Serial.print ("%\t"); <br>
+Serial.print ("Temperature: "); <br>
+Serial.print (t); <br>
+Serial.println (" *C"); <br>
+ }
+}</p></td></tr>
+	<tr><td colspan="2" width="600px"><h3>Источники информации</h3><p>https://xn--18-6kcdusowgbt1a4b.xn--p1ai/%D0%B4%D0%B0%D1%82%D1%87%D0%B8%D0%BA-%D1%82%D0%B5%D0%BC%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D1%83%D1%80%D1%8B-%D0%B8-%D0%B2%D0%BB%D0%B0%D0%B6%D0%BD%D0%BE%D1%81%D1%82%D0%B8/</p>
+		<p>https://kip-world.ru/kak-podklyuchit-datchik-temperatury-i-vlazhnosti-dht11-k-arduino-uno.html</p></td></tr>
+</table>
+<br>
+<table border="2">
+	<tr><td colspan="2"><h1>KY-003 цифрофой датчий Холла (датчик магнитного поля)</h1></td></tr>
+	<tr><td><img width="250px" src="img/KY-003-Hall-Magnetic-Sensor-Module-1-600x600.jpg"></td><td><h3>Схема подключения</h3><img width="250px" src="img/ky-003-datchik-holla-arduino-circuit.jpg"></td></tr>
+	<tr><td width="600px" colspan="2"><p>KY-003 – датчик Холла (Hall sensor) выполнен на базе элемента “44E” и по сути является магнитным переключателем. Если рядом с ним нет магнитного поля, то на сигнальном выходе датчика имеется высокий уровень и наоборот если поле присутствует, то на выходе низкий уровень напряжения, таким образом сенсор имеет цифровой выход.</p></td></tr>
+	<tr><td colspan="2"><h2>Код программы</h2>
+		int led = 13 ; // назначение пина светодиода <br>
+int hallPin = 10 ; // назначение пина датчика<br>
+int value ; // переменная для хранения значения с датчика<br>
+ 
+void setup ()<br>
+{<br>
+  pinMode (led, OUTPUT); <br>  
+  pinMode (hallPin, INPUT); <br>
+}<br>
+ 
+void loop ()<br>
+{<br>
+  value = digitalRead (hallPin) ; // чтение значения с датчика<br>
+  if (value == LOW) // когда имеется магнитное поле светодиод <br>горит 
+  {<br>
+    digitalWrite (led, HIGH);<br>
+  }<br>
+  {<br>
+    digitalWrite (led, LOW);<br>
+  }<br>
+}</td></tr>
+	<tr><td colspan="2"><h3>Источники информации</h3>
+	<p>https://umnyjdomik.ru/ky-003-datchik-holla-na-baze-44e-dlya-arduino.html</p></td></tr>
+</table>
+<br>
+<table border="2">
+	<tr><td colspan="2"><h1>EC11 Инкрементальный энкодер</h1></td></tr>
+	<tr><td><img width="400px" src="img/DSC04035.jpg"></td><td><h3>Схема подключения</h3><img width="400px" src="img/encoder_007.png"></td></tr>
+	<tr><td width="800px" colspan="2"><p>Инкрементальный энкодер - устройство, которое преобразовывает вращательное движение вала в серию электрических импульсов, позволяющих определить направление и угол его вращения.</p></td></tr>
+	<tr><td colspan="2"><h2>Код программы</h2>
+		<p>int pinA = 2; // Пины прерываний<br>
+int pinB = 3; // Пины прерываний<br>
+
+volatile long pause    = 50;  // Пауза для борьбы с дребезгом<br>
+volatile long lastTurn = 0;   // Переменная для хранения времени последнего изменения<br>
+
+volatile int count = 0;       // Счетчик оборотов<br>
+int actualcount    = 0;       // Временная переменная определяющая изменение основного счетчика<br>
+
+volatile int state = 0;       // Статус одного шага - от 0 до 4 в одну сторону, от 0 до -4 - в другую<br>
+
+volatile int pinAValue = 0;   // Переменные хранящие состояние пина, для экономии времени<br>
+volatile int pinBValue = 0;   // Переменные хранящие состояние пина, для экономии времени<br>
+
+
+void setup()<br>
+{<br>
+  pinMode(pinA, INPUT);           // Пины в режим приема INPUT<br>
+  pinMode(pinB, INPUT);           // Пины в режим приема INPUT<br>
+
+  attachInterrupt(0, A, CHANGE);  // Настраиваем обработчик прерываний по изменению сигнала<br>
+  attachInterrupt(1, B, CHANGE);  // Настраиваем обработчик прерываний по изменению сигнала<br>
+
+  Serial.begin(9600);             // Включаем Serial<br>
+}<br>
+
+void loop()<br>
+{<br>
+  if (actualcount != count) {     // Чтобы не загружать ненужным выводом в Serial, выводим состояние<br>
+    actualcount = count;          // счетчика только в момент изменения<br>
+    Serial.println(actualcount);<br>
+  }<br>
+}<br>
+
+void A()<br>
+{<br>
+  if (micros() - lastTurn < pause) return;  // Если с момента последнего изменения состояния не прошло<br>
+  // достаточно времени - выходим из прерывания<br>
+  pinAValue = digitalRead(pinA);            // Получаем состояние пинов A и B<br>
+  pinBValue = digitalRead(pinB);
+<br>
+  cli();    // Запрещаем обработку прерываний, чтобы не отвлекаться<br>
+  if (state == 0  && !pinAValue &&  pinBValue || state == 2  && pinAValue && !pinBValue) {<br>
+    state += 1; // Если выполняется условие, наращиваем переменную state<br>
+    lastTurn = micros();<br>
+  }<br>
+  if (state == -1 && !pinAValue && !pinBValue || state == -3 && pinAValue &&  pinBValue) {<br>
+    state -= 1; // Если выполняется условие, наращиваем в минус переменную state<br>
+    lastTurn = micros();<br>
+  }<br>
+  setCount(state); // Проверяем не было ли полного шага из 4 изменений сигналов (2 импульсов)<br>
+  sei(); // Разрешаем обработку прерываний<br>
+
+  if (pinAValue && pinBValue && state != 0) state = 0; // Если <br>что-то пошло не так, возвращаем статус в исходное состояние<br>
+}<br>
+void B()<br>
+{<br>
+  if (micros() - lastTurn < pause) return;<br>
+  pinAValue = digitalRead(pinA);<br>
+  pinBValue = digitalRead(pinB);<br>
+
+  cli();<br>
+  if (state == 1 && !pinAValue && !pinBValue || state == 3 && pinAValue && pinBValue) {<br>
+    state += 1; // Если выполняется условие, наращиваем переменную state<br>
+    lastTurn = micros();<br>
+  }<br>
+  if (state == 0 && pinAValue && !pinBValue || state == -2 && !pinAValue && pinBValue) {<br>
+    state -= 1; // Если выполняется условие, наращиваем в минус переменную state<br>
+    lastTurn = micros();<br>
+  }<br>
+  setCount(state); // Проверяем не было ли полного шага из 4 изменений сигналов (2 импульсов)<br>
+  sei();<br>
+  
+  if (pinAValue && pinBValue && state != 0) state = 0; // Если что-то пошло не так, возвращаем статус в исходное состояние<br>
+}<br>
+
+void setCount(int state) {          // Устанавливаем значение счетчика<br>
+  if (state == 4 || state == -4) {  // Если переменная state приняла заданное значение приращения<br>
+    count += (int)(state / 4);      // Увеличиваем/уменьшаем счетчик<br>
+    lastTurn = micros();            // Запоминаем последнее изменение<br>
+  }<br>
+}</p></td></tr>
+	<tr><td width="800px" colspan="2"><h3>Источники информации</h3><p>http://codius.ru/articles/%D0%98%D0%BD%D0%BA%D1%80%D0%B5%D0%BC%D0%B5%D0<br>%BD%D1%82%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9_%D1%8D%D0%BD%D0%BA%D0<br>%BE%D0%B4%D0%B5%D1%80_%D0%BF%D1%80%D0%B8%D0%BD%D1%86%D0%B8%D0%BF_%D0%B4<br>%D0%B5%D0%B9%D1%81%D1%82%D0%B2%D0%B8%D1%8F_%D1%81%D1%85%D0%B5%D0%BC<br>%D1%8B_%D0%BF%D0%BE%D0%B4%D0%BA%D0%BB%D1%8E%D1%87%D0%B5%D0%BD%D0%B8%D1%
+	<br>8F_%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0_%D1%81_Arduino</p></td></tr>
+
+</table>
+</body>
+</html>
